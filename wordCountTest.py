@@ -10,9 +10,9 @@ if len(sys.argv) is not 4:
     print("Correct usage: wordCountTest.py <input text file> <output file> <solution key file>")
     exit()
 
-textFname = sys.argv[1]
-outputFname = sys.argv[2]
-inputFname = sys.argv[3]
+textFname = sys.argv[1]  # input text file
+outputFname = sys.argv[2]  # output file
+inputFname = sys.argv[3]  # solution key file
 
 # first check to make sure program exists
 if not os.path.exists("wordCount.py"):
@@ -21,7 +21,7 @@ if not os.path.exists("wordCount.py"):
 
 # make sure text files exist
 if not os.path.exists(textFname):
-    print("text file input %s doesn't exist! Exiting" % textFname)
+    print(f"text file input {textFname} doesn't exist! Exiting")
     exit()
 
 # execute the program with
@@ -29,7 +29,7 @@ subprocess.call(["python3", "./wordCount.py", textFname, outputFname])
 
 # make sure output file exists
 if not os.path.exists(outputFname):
-    print("wordCount output file %s doesn't exist! Exiting" % outputFname)
+    print(f"wordCount output file {outputFname} doesn't exist! Exiting")
     exit()
 
 # stats
@@ -50,7 +50,7 @@ with open(inputFname, 'r') as inputFile:
         # split line on whitespace and punctuation
         word = re.split('[ \t]', line)
         if len(word) != 2:
-            print("Badly formatted line, exiting. Bad line:\n %s" % line)
+            print(f"Badly formatted line, exiting. Bad line:\n {line}")
             exit()
         master[word[0]] = int(word[1])
         words += 1
@@ -63,10 +63,10 @@ with open(outputFname, 'r') as outputFile:
         # split line on whitespace and punctuation
         word = re.split('[ \t]', line)
         if len(word) != 2:
-            print("Badly formatted line, exiting. Bad line:\n %s" % line)
+            print(f"Badly formatted line, exiting. Bad line:\n {line}")
             exit()
         if word[0] <= lastWord:
-            print("Misordered words: %s appears before %s" % (lastWord, word[0]))
+            print(f"Misordered words: {lastWord} appears before {word[0]}")
             passed = False
             faults += 1
         test[word[0]] = int(word[1])
@@ -75,25 +75,25 @@ with open(outputFname, 'r') as outputFile:
 # see if test is missing words from master
 for key in master:
     if key not in test:
-        print("Missing word in test file: %s" % key)
+        print(f"Missing word in test file: {key}")
         passed = False
         faults += 1
 
 # see if test has words master doesn't have
 for key in test:
     if key not in master:
-        print("Extra word in test file: %s" % key)
+        print(f"Extra word in test file: {key}")
         passed = False
         faults += 1
 
 # see if counts match        
 for key in master:
     if key in test and test[key] != master[key]:
-        print("Count mismatch for %s, should be %s value is %s" % (key, master[key], test[key]))
+        print(f"Count mismatch for {key}, should be {master[key]} value is {test[key]}")
         passed = False
         faults += 1
 if passed:
     print("Passed!")
 else:
-    print("Error rate {0:.3f}%".format(faults * 100.0 / words))
+    print(f"Error rate {faults * 100.0 / words:.3f}%")
     print("Failed!")
