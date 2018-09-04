@@ -28,5 +28,6 @@ with open(inFile, 'r') as fp:
             continue
         wordFrequency[word.lower()] += 1
 
-for key in sorted(wordFrequency):
-    print(f"{key} {wordFrequency[key]}")
+with open(outFile, 'w') as fp:
+    for key in sorted(wordFrequency):
+        fp.write(f"{key} {wordFrequency[key]}")
