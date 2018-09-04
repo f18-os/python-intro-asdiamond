@@ -5,12 +5,12 @@ from collections import defaultdict
 
 def usage():
     print(len(sys.argv))
-    print("Correct usage is: python wordCount.py <input> <output>")
+    print("Correct usage is: python wordCount.py <inFile> <outFile>")
+    exit()
 
 
 if len(sys.argv) is not 3:
     usage()
-    exit()
 
 inFile = sys.argv[1]
 outFile = sys.argv[2]
