@@ -15,19 +15,14 @@ if len(sys.argv) is not 3:
 inFile = sys.argv[1]
 outFile = sys.argv[2]
 
-# this one didnt have weird side effect where ; , and . were there own words...
-expr = re.compile(':*;*\.*,*\s+')
+# TODO need to close this file...
+data = open(inFile, 'r').read().lower()
+words = re.findall('\w+', data)
 
-# 0 or more (';' or ',' or '.') followed by 1 or more spaces
-# expr = re.compile('([;,.:])*\s+')
 wordFrequency = defaultdict(int)
-
-with open(inFile, 'r') as fp:
-    for word in expr.split(fp.read()):
-        if word is None:
-            continue
-        wordFrequency[word.lower()] += 1
+for word in words:
+    wordFrequency[word] += 1
 
 with open(outFile, 'w') as fp:
     for key in sorted(wordFrequency):
-        fp.write(f"{key} {wordFrequency[key]}")
+        fp.write(f"{key} {wordFrequency[key]}\n")
