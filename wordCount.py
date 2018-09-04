@@ -16,17 +16,17 @@ def main():
     in_file = sys.argv[1]
     out_file = sys.argv[2]
 
-    # TODO need to close this file...
+    # the file will be closed when the buffered reader is gcd
     data = open(in_file, 'r').read().lower()
     words = re.findall('\w+', data)
 
-    wordFrequency = defaultdict(int)
+    word_frequency = defaultdict(int)
     for word in words:
-        wordFrequency[word] += 1
+        word_frequency[word] += 1
 
     with open(out_file, 'w') as fp:
-        for key in sorted(wordFrequency):
-            fp.write(f"{key} {wordFrequency[key]}\n")
+        for key in sorted(word_frequency):
+            fp.write(f"{key} {word_frequency[key]}\n")
 
 
 if __name__ == '__main__':
