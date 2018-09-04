@@ -9,20 +9,25 @@ def usage():
     exit()
 
 
-if len(sys.argv) is not 3:
-    usage()
+def main():
+    if len(sys.argv) is not 3:
+        usage()
 
-inFile = sys.argv[1]
-outFile = sys.argv[2]
+    in_file = sys.argv[1]
+    out_file = sys.argv[2]
 
-# TODO need to close this file...
-data = open(inFile, 'r').read().lower()
-words = re.findall('\w+', data)
+    # TODO need to close this file...
+    data = open(in_file, 'r').read().lower()
+    words = re.findall('\w+', data)
 
-wordFrequency = defaultdict(int)
-for word in words:
-    wordFrequency[word] += 1
+    wordFrequency = defaultdict(int)
+    for word in words:
+        wordFrequency[word] += 1
 
-with open(outFile, 'w') as fp:
-    for key in sorted(wordFrequency):
-        fp.write(f"{key} {wordFrequency[key]}\n")
+    with open(out_file, 'w') as fp:
+        for key in sorted(wordFrequency):
+            fp.write(f"{key} {wordFrequency[key]}\n")
+
+
+if __name__ == '__main__':
+    main()
