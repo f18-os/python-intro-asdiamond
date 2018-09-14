@@ -11,11 +11,13 @@ def child(raw_cmd):
 
     for directory in re.split(":", os.environ['PATH']):  # walk the path
         program = f"{directory}/{fname}"
-        try:
+        if os.access(program, os.X_OK):
             os.execve(program, args, os.environ)
-        except FileNotFoundError:  # continue walking the path
-            pass
-        # if you've gotten here every execve has failed
+        # try:
+        #     os.execve(program, args, os.environ)
+        # except FileNotFoundError:  # continue walking the path
+        #     pass
+        # if you've gotten here every execve has failed, successful execs never return
     print(f"command not found {fname}")
 
 
@@ -24,19 +26,17 @@ def main():
 
     while True:
         raw_cmd = input("user@machine:dir$ ")
-        if raw_cmd.strip() is "q":
+        if raw_cmd.strip() is "q" or "exit":
             print("Goodbye")
             sys.exit(0)
-
-        ret_code = os.fork()
-        if ret_code < 0:
-            print("fork failed.")
-        elif ret_code == 0:
-            child(raw_cmd)
-        else:  # fork is ok
-            child_pid = os.wait()
-            # if child_pid < 0:
-            #     print(f"Child terminted with exit code{child_pid}")
+        try:
+            ret_code = os.fork()
+            if ret_code == 0:  # I am child
+                child(raw_cmd)
+            else:  # I am parent, fork was ok
+                child_pid = os.wait() # wait for child TODO background support
+        except OSError as e:
+            print(f"fork failed with code: {e}")
 
 
 # Example:
