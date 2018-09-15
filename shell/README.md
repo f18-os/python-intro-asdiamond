@@ -7,34 +7,17 @@
 Using your tokenizer and the system calls fork(), exec(), and wait() create a simple shell that:
 
 - prints a command prompt which is "$ " and waits for the user to enter a command
-- parse the command using your tokenizer 
-- create a child process that uses execve to run the command with its arguments.  
 - If an absolute path is not specified, your shell should instead find it using the $PATH environment variable.
-- the parent process should wait for the child to terminate before printing another command prompt.
 - print "command not found" if the command is not found
 - if the command fails (with a non-zero exit value N), your shell should print "Program terminated with exit code N."
 - empty commands should do nothing
 - the "exit" command should cause your shell to terminate.
 
-We have provided a program called argDemo (tokenizer tester) which is meant to test your tokenizer. Compile and add this program to your PATH 
-environment variable before running your shell.
-
-Here's an example output of tt:
-
-$ argDemo  &nbsp;&nbsp;&nbsp;hello&nbsp;&nbsp;&nbsp;&nbsp;world&nbsp;&nbsp;&nbsp;&nbsp;peace&nbsp;&nbsp;&nbsp;&nbsp;<br />
-argc = 4<br />
-argv[ 0 ] = tt<br />
-argv[ 1 ] = hello<br />
-argv[ 2 ] = world<br />
-argv[ 3 ] = peace<br />
-<br />
-$
-
 ## Assignment Part 2
 
 In this lab, you will create a user shell in the C programming language that can understand:
 
-- simple commands (e.g. $ /bin/ls or $ ls )
+- simple commands (e.g. $ /bin/ls or $ ls )producer_pid
 - simple pipes (e.g. $ /bin/ls | /bin/sort -r)
 - background tasks (e.g. $ find /etc -print & )
 -  "cd" ## for "cd" you will need to lookup the library routine "chdir" in the (online) unix manual

@@ -3,9 +3,9 @@ import re
 import sys
 
 
-def child(raw_cmd):
+def safe_exec(raw_cmd):
     cmd = tok(raw_cmd)
-    # simple single command a
+    # simple single command
     fname = cmd[0]
     args = cmd  # By convention args[0] is the filename anyways
 
@@ -13,10 +13,6 @@ def child(raw_cmd):
         program = f"{directory}/{fname}"
         if os.access(program, os.X_OK):
             os.execve(program, args, os.environ)
-        # try:
-        #     os.execve(program, args, os.environ)
-        # except FileNotFoundError:  # continue walking the path
-        #     pass
         # if you've gotten here every execve has failed, successful execs never return
     print(f"command not found {fname}")
 
@@ -38,7 +34,7 @@ def exec_oredirect_cmd(raw_cmd):
             os.close(sys.stdout.fileno())
             sys.stdout = open(cmds[1].strip(), 'w')
             os.set_inheritable(sys.stdout.fileno(), True)
-            child(cmds[0].strip())
+            safe_exec(cmds[0].strip())
         else:  # I am parent, fork was ok
             child_pid = os.wait()  # wait for child TODO background support
     except OSError as e:
@@ -56,9 +52,34 @@ def exec_iredirect_cmd(raw_cmd):
             os.close(sys.stdin.fileno())
             sys.stdin = open(cmds[1].strip(), 'r')
             os.set_inheritable(sys.stdin.fileno(), True)
-            child(cmds[0].strip())
+            safe_exec(cmds[0].strip())
         else:  # I am parent, fork was ok
             os.wait()  # wait for child TODO background support
+    except OSError as e:
+        print(f"fork failed with code: {e}")
+
+
+def exec_pipe_cmd(raw_cmd):
+    producer, consumer = re.split("\|", raw_cmd)
+    pipe_out, pipe_in = os.pipe()  # r, w are for reading and writing to the pipe
+    try:
+        producer_pid = os.fork()
+        if producer_pid:  # still parent
+            consumer_pid = os.fork()
+            if consumer_pid:  # still parent
+                os.close(pipe_in)
+                os.close(pipe_out)
+                os.waitpid(producer_pid, 0)
+                os.waitpid(consumer_pid, 0)
+            else:  # consumer
+                os.dup2(pipe_out, sys.stdin.fileno())
+                os.close(pipe_out)
+                safe_exec(consumer.strip())
+        else:  # producer
+            os.dup2(pipe_in, sys.stdout.fileno())
+            os.close(pipe_in)
+            safe_exec(producer.strip())
+
     except OSError as e:
         print(f"fork failed with code: {e}")
 
@@ -73,18 +94,19 @@ def main():
         elif raw_cmd.strip() == "q":
             print("Goodbye")
             return
+        elif raw_cmd.strip() == "cd":
+            print("chdir")
         elif ">" in raw_cmd:
             exec_oredirect_cmd(raw_cmd)
         elif "<" in raw_cmd:
-            print("input redirect")
             exec_iredirect_cmd(raw_cmd)
         elif "|" in raw_cmd:
-            print("pipe")
+            exec_pipe_cmd(raw_cmd)
         else:  # simple command with no redirect
             try:
                 ret_code = os.fork()
                 if ret_code == 0:  # I am child
-                    child(raw_cmd)
+                    safe_exec(raw_cmd)
                 else:  # I am parent, fork was ok
                     child_pid = os.wait()  # wait for child TODO background support
             except OSError as e:
