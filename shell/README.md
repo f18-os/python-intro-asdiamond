@@ -18,7 +18,6 @@ Using your tokenizer and the system calls fork(), exec(), and wait() create a si
 In this lab, you will create a user shell in the C programming language that can understand:
 
 - simple commands (e.g. $ /bin/ls or $ ls )producer_pid
-- simple pipes (e.g. $ /bin/ls | /bin/sort -r)
 - background tasks (e.g. $ find /etc -print & )
 -  "cd" ## for "cd" you will need to lookup the library routine "chdir" in the (online) unix manual
 

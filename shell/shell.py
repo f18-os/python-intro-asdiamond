@@ -19,7 +19,9 @@ def safe_exec(raw_cmd):
 
 # Example:
 # ls -a -lh --list => ['ls', '-a', '-lh', '--list']
+# removes & from strings ls / & => ['ls', '/']
 def tok(val):
+    val = val.replace("&", "").strip()
     return re.split('\s+', val)
 
 
@@ -84,33 +86,42 @@ def exec_pipe_cmd(raw_cmd):
         print(f"fork failed with code: {e}")
 
 
+def exec_bg(raw_cmd):
+    pass
+
+
 def main():
     print("Welcome to ashell.")
 
     while True:
-        raw_cmd = input("user@machine:dir$ ")
-        if raw_cmd == "\n":
-            continue
-        elif raw_cmd.strip() == "q":
-            print("Goodbye")
-            return
-        elif raw_cmd.strip() == "cd":
-            print("chdir")
-        elif ">" in raw_cmd:
-            exec_oredirect_cmd(raw_cmd)
-        elif "<" in raw_cmd:
-            exec_iredirect_cmd(raw_cmd)
-        elif "|" in raw_cmd:
-            exec_pipe_cmd(raw_cmd)
-        else:  # simple command with no redirect
-            try:
-                ret_code = os.fork()
-                if ret_code == 0:  # I am child
+        try:
+            raw_cmd = input("user@machine:dir$ ")
+            if raw_cmd == "\n":
+                continue
+            elif raw_cmd is None:
+                continue
+            elif raw_cmd == "":
+                continue
+            elif raw_cmd.strip() == "q":
+                return
+            elif raw_cmd.strip() == "cd":
+                print("chdir")
+            elif ">" in raw_cmd:
+                exec_oredirect_cmd(raw_cmd)
+            elif "<" in raw_cmd:
+                exec_iredirect_cmd(raw_cmd)
+            elif "|" in raw_cmd:
+                exec_pipe_cmd(raw_cmd)
+            else:  # simple command with no redirect
+                print(f"COMMAND: {raw_cmd}")
+                pid = os.fork()
+                if pid:  # parent
+                    if "&" not in raw_cmd:
+                        os.wait()
+                else:    # child
                     safe_exec(raw_cmd)
-                else:  # I am parent, fork was ok
-                    child_pid = os.wait()  # wait for child TODO background support
-            except OSError as e:
-                print(f"fork failed with code: {e}")
+        except EOFError:
+            sys.exit()
 
 
 if __name__ == '__main__':
