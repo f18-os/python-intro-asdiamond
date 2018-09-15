@@ -21,28 +21,56 @@ def child(raw_cmd):
     print(f"command not found {fname}")
 
 
+# Example:
+# ls -a -lh --list => ['ls', '-a', '-lh', '--list']
+def tok(val):
+    return re.split('\s+', val)
+
+
+#  for redirecting output of command on left side
+#  eg. ls -lh > file.txt
+def exec_oredirect_cmd(raw_cmd):
+    cmds = re.split(">", raw_cmd)
+
+    try:
+        ret_code = os.fork()
+        if ret_code == 0:  # I am child
+            os.close(sys.stdout.fileno())
+            sys.stdout = open(cmds[1].strip(), 'w')
+            os.set_inheritable(sys.stdout.fileno(), True)
+            child(cmds[0].strip())
+        else:  # I am parent, fork was ok
+            child_pid = os.wait()  # wait for child TODO background support
+    except OSError as e:
+        print(f"fork failed with code: {e}")
+
+
+
 def main():
     print("Welcome to ashell.")
 
     while True:
         raw_cmd = input("user@machine:dir$ ")
-        if raw_cmd.strip() is "q" or "exit":
+        if raw_cmd == "\n":
+            continue
+        elif raw_cmd.strip() == "q":
             print("Goodbye")
-            sys.exit(0)
-        try:
-            ret_code = os.fork()
-            if ret_code == 0:  # I am child
-                child(raw_cmd)
-            else:  # I am parent, fork was ok
-                child_pid = os.wait() # wait for child TODO background support
-        except OSError as e:
-            print(f"fork failed with code: {e}")
-
-
-# Example:
-# ls -a -lh --list => ['ls', '-a', '-lh', '--list']
-def tok(val):
-    return re.split('\s+', val)
+            return
+        elif ">" in raw_cmd:
+            exec_oredirect_cmd(raw_cmd)
+        elif "<" in raw_cmd:
+            print("input redirect")
+        elif "|" in raw_cmd:
+            print("pipe")
+        else:  # simple command with no redirect
+            try:
+                ret_code = os.fork()
+                if ret_code == 0:  # I am child
+                    child(raw_cmd)
+                else:  # I am parent, fork was ok
+                    child_pid = os.wait()  # wait for child TODO background support
+            except OSError as e:
+                print(f"fork failed with code: {e}")
 
 
 if __name__ == '__main__':
