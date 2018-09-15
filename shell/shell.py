@@ -45,6 +45,23 @@ def exec_oredirect_cmd(raw_cmd):
         print(f"fork failed with code: {e}")
 
 
+#  for redirecting input of command on right side
+#  eg. ls -lh < out.txt
+def exec_iredirect_cmd(raw_cmd):
+    cmds = re.split("<", raw_cmd)
+
+    try:
+        ret_code = os.fork()
+        if ret_code == 0:  # I am child
+            os.close(sys.stdin.fileno())
+            sys.stdin = open(cmds[1].strip(), 'r')
+            os.set_inheritable(sys.stdin.fileno(), True)
+            child(cmds[0].strip())
+        else:  # I am parent, fork was ok
+            os.wait()  # wait for child TODO background support
+    except OSError as e:
+        print(f"fork failed with code: {e}")
+
 
 def main():
     print("Welcome to ashell.")
@@ -60,6 +77,7 @@ def main():
             exec_oredirect_cmd(raw_cmd)
         elif "<" in raw_cmd:
             print("input redirect")
+            exec_iredirect_cmd(raw_cmd)
         elif "|" in raw_cmd:
             print("pipe")
         else:  # simple command with no redirect
