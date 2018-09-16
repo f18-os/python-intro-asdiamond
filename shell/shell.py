@@ -31,7 +31,8 @@ def tok(val):
 
 #  for redirecting output of command on left side
 #  eg. ls -lh > file.txt
-def exec_oredirect_cmd(raw_cmd):
+def exec_oredirect_cmd(raw_cmd, bg):
+    raw_cmd = raw_cmd.replace("&", "").strip()
     cmds = re.split(">", raw_cmd)
 
     try:
@@ -42,14 +43,16 @@ def exec_oredirect_cmd(raw_cmd):
             os.set_inheritable(sys.stdout.fileno(), True)
             safe_exec(cmds[0].strip())
         else:  # I am parent, fork was ok
-            child_pid = os.wait()  # wait for child TODO background support
+            if not bg:
+                child_pid = os.wait()  # wait for child TODO background support
     except OSError as e:
         print(f"fork failed with code: {e}")
 
 
 #  for redirecting input of command on right side
 #  eg. ls -lh < out.txt
-def exec_iredirect_cmd(raw_cmd):
+def exec_iredirect_cmd(raw_cmd, bg):
+    raw_cmd = raw_cmd.replace("&", "").strip()
     cmds = re.split("<", raw_cmd)
 
     try:
@@ -60,7 +63,8 @@ def exec_iredirect_cmd(raw_cmd):
             os.set_inheritable(sys.stdin.fileno(), True)
             safe_exec(cmds[0].strip())
         else:  # I am parent, fork was ok
-            os.wait()  # wait for child TODO background support
+            if not bg:
+                os.wait()  # wait for child
     except OSError as e:
         print(f"fork failed with code: {e}")
 
@@ -90,10 +94,6 @@ def exec_pipe_cmd(raw_cmd):
         print(f"fork failed with code: {e}")
 
 
-def exec_bg(raw_cmd):
-    pass
-
-
 def cd(raw_cmd):
     dr = tok(raw_cmd)[1]
     os.chdir(dr)
@@ -114,9 +114,9 @@ def main():
             elif "cd" in raw_cmd:
                 cd(raw_cmd)
             elif ">" in raw_cmd:
-                exec_oredirect_cmd(raw_cmd)
+                exec_oredirect_cmd(raw_cmd, "&" in raw_cmd)
             elif "<" in raw_cmd:
-                exec_iredirect_cmd(raw_cmd)
+                exec_iredirect_cmd(raw_cmd, "&" in raw_cmd)
             elif "|" in raw_cmd:
                 exec_pipe_cmd(raw_cmd)
             else:  # simple command with no redirect

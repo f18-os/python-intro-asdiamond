@@ -22,7 +22,7 @@ PASSED: redirect input
 PASSED: redirect output
   uname > /tmp/x 
  cat /tmp/x
-FAILED: background
+PASSED: background
   bash < /tmp/c1 &
  echo 2 
  sleep 3
