@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import re
 import sys
@@ -90,12 +91,15 @@ def exec_bg(raw_cmd):
     pass
 
 
-def main():
-    print("Welcome to ashell.")
+def cd(raw_cmd):
+    dr = tok(raw_cmd)[1]
+    os.chdir(dr)
 
+
+def main():
     while True:
         try:
-            raw_cmd = input("user@machine:dir$ ")
+            raw_cmd = input(os.environ['PS1'])
             if raw_cmd == "\n":
                 continue
             elif raw_cmd is None:
@@ -104,8 +108,8 @@ def main():
                 continue
             elif raw_cmd.strip() == "q":
                 return
-            elif raw_cmd.strip() == "cd":
-                print("chdir")
+            elif "cd" in raw_cmd:
+                cd(raw_cmd)
             elif ">" in raw_cmd:
                 exec_oredirect_cmd(raw_cmd)
             elif "<" in raw_cmd:
@@ -113,12 +117,11 @@ def main():
             elif "|" in raw_cmd:
                 exec_pipe_cmd(raw_cmd)
             else:  # simple command with no redirect
-                print(f"COMMAND: {raw_cmd}")
                 pid = os.fork()
                 if pid:  # parent
                     if "&" not in raw_cmd:
                         os.wait()
-                else:    # child
+                else:  # child
                     safe_exec(raw_cmd)
         except EOFError:
             sys.exit()

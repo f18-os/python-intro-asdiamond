@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #set -x
 if [ -z $1 ] ; then 
     echo "Usage: $0 [myShell]" >&2
