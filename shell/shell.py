@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 import os
 import re
 import sys
@@ -10,11 +10,14 @@ def safe_exec(raw_cmd):
     fname = cmd[0]
     args = cmd  # By convention args[0] is the filename anyways
 
-    for directory in re.split(":", os.environ['PATH']):  # walk the path
+    if os.access(fname, os.X_OK):  # if we are given a correct full path, why not?
+        os.execve(fname, args, os.environ)
+    # walk the path
+    for directory in re.split(":", os.environ['PATH']):
         program = f"{directory}/{fname}"
         if os.access(program, os.X_OK):
             os.execve(program, args, os.environ)
-        # if you've gotten here every execve has failed, successful execs never return
+    #  Successful execs never return, they just go missing in action...
     print(f"command not found {fname}")
 
 

@@ -65,7 +65,7 @@ more than zero bytes will transfer zero bytes.
 If there is a PS1 (prompt string #1) environment variable, then your
 shell's prompt should be its value.  This is used to suppress your
 shell's prompt.  Otherwise, your shell can use any reasonable prompt
-string.
+string``__````__``.
 
 To test this, try
 
