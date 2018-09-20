@@ -44,7 +44,7 @@ def exec_oredirect_cmd(raw_cmd, bg):
             safe_exec(cmds[0].strip())
         else:  # I am parent, fork was ok
             if not bg:
-                child_pid = os.wait()  # wait for child TODO background support
+                child_pid = os.wait()  # wait for child
     except OSError as e:
         print(f"fork failed with code: {e}")
 
@@ -103,6 +103,7 @@ def main():
     while True:
         try:
             raw_cmd = input(os.environ['PS1'])
+            # raw_cmd = input("$:")
             if raw_cmd == "\n":
                 continue
             elif raw_cmd is None:

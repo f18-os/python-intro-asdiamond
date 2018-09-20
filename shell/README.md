@@ -7,8 +7,6 @@
 Using your tokenizer and the system calls fork(), exec(), and wait() create a simple shell that:
 
 - prints a command prompt which is "$ " and waits for the user to enter a command
-- If an absolute path is not specified, your shell should instead find it using the $PATH environment variable.
-- print "command not found" if the command is not found
 - if the command fails (with a non-zero exit value N), your shell should print "Program terminated with exit code N."
 - empty commands should do nothing
 - the "exit" command should cause your shell to terminate.
